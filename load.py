@@ -1,6 +1,5 @@
 import sqlite3
 
-
 def save_to_csv(df, filename="exchange_rates.csv"):
     df.to_csv(filename, index=False)
     print(f"Data saved to {filename}")
