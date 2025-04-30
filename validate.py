@@ -1,23 +1,34 @@
-import pandera as pa
-from pandera import Column, DataFrameSchema, Check
+from pydantic import BaseModel, Field, ValidationError
+from datetime import datetime
+import pandas as pd
 
+class ExchangeRateRecord(BaseModel):
+    base: str
+    target: str
+    rate: float = Field(..., gt=0)
+    timestamp: int
 
-# Define schema for exchange rate DataFrame
-exchange_schema = DataFrameSchema({
-    "base": Column(str),
-    "target": Column(str),
-    "rate": Column(float, Check.greater_than(0)),  # rate should be positive
-    "date": Column(str)
-})
+    def to_dict(self):
+        return {
+            "base": self.base,
+            "target": self.target,
+            "rate": self.rate,
+            "timestamp": datetime.utcfromtimestamp(self.timestamp).strftime('%Y-%m-%d')
+        }
 
+def validate_data(df: pd.DataFrame) -> pd.DataFrame:
+    validated = []
 
-def validate_data(df):
-    return exchange_schema.validate(df)
+    for _, row in df.iterrows():
+        try:
+            record = ExchangeRateRecord(
+                base=row["base"],
+                target=row["target"],
+                rate=row["rate"],
+                timestamp=row["timestamp"]
+            )
+            validated.append(record.to_dict())
+        except ValidationError as e:
+            print(f"[Validation Error] Skipped row: {e}")
 
-
-# For testing
-if __name__ == "__main__":
-    from extract import fetch_exchange_rates
-    df = fetch_exchange_rates(base_currency="USD", target_currencies=["EUR", "JPY", "TWD"])
-    validated_df = validate_data(df)
-    print(validated_df)
+    return pd.DataFrame(validated)
