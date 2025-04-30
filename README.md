@@ -4,7 +4,7 @@ This project is an **ETL (Extract, Transform, Load)** pipeline built with Python
 
 ## 📌 Features
 - Extract exchange rate data using the [exchangerate.host](https://exchangerate.host) API
-- Validate data schema using **Pandera**
+- Validate data schema using **Pydantic**
 - Transform data (e.g., rounding, date parsing)
 - Save to both **CSV** and **SQLite** formats
 - Orchestrate with **Prefect** and deploy to **Prefect Cloud**
@@ -13,11 +13,12 @@ This project is an **ETL (Extract, Transform, Load)** pipeline built with Python
 ---
 
 ## 🗂️ Project Structure
+
 ```text
 exchange_rate/
 ├── extract.py          # Download exchange rates from exchangerate.host
 ├── transform.py        # Clean and format the extracted data
-├── validate.py         # Schema validation with Pandera
+├── validate.py         # Schema validation with Pydantic
 ├── load.py             # Save to CSV and SQLite database
 ├── pipeline.py         # Prefect pipeline definition
 ├── prefect.yaml        # Saved deployment configuration
@@ -28,6 +29,7 @@ exchange_rate/
 ---
 
 ## ⚙️ Installation
+
 ```bash
 # Clone the repo
 git clone <this-repo>
@@ -44,83 +46,85 @@ pip install -r requirements.txt
 ---
 
 ## 🚀 How to Run Locally (Manual Run)
+
 ```bash
 python extract.py      # Test extraction
-python validate.py     # Test validation
-python transform.py    # Test transformation
-python load.py         # Save as CSV and SQLite
+python validate.py     # Validate using Pydantic
+python transform.py    # Transform/clean data
+python load.py         # Save to CSV and SQLite
 ```
 
 ---
 
 ## 🧠 Run with Prefect
+
 ### 1. Authenticate with Prefect Cloud
+
 ```bash
 prefect cloud login
 ```
 
 ### 2. Deploy the pipeline
+
 ```bash
 prefect deploy pipeline.py:etl_pipeline \
   --name "Exchange Rate ETL" \
   --cron "0 * * * *"  # every hour
 ```
+
 Follow the prompts to select:
 - Work pool: `local-pool`
 - Storage: **No** remote storage
 
 ### 3. Start your worker
+
 ```bash
 prefect worker start --pool local-pool
 ```
 
 ### 4. Trigger a manual run
+
 ```bash
 prefect deployment run "Exchange Rate ETL Pipeline/Exchange Rate ETL"
 ```
 
 ### 5. Monitor on Prefect Cloud
+
 Go to:
+
 ```
 https://app.prefect.cloud
 ```
-And log in to see:
+
+And log in to view:
 - Flows
 - Executions
 - Logs
+- Artifacts
 
 ---
 
 ## 📁 Output
-- `exchange_rates.csv`  → Cleaned data in CSV format
-- `exchange_rates.db`   → SQLite database table `exchange_rates`
+
+- `open_exchange_rates.csv`  → Cleaned data in CSV format
 
 ---
 
 ## 📦 Dependencies
+
 ```
 pandas
 requests
-pandera>=0.17.0
+pydantic>=1.10
 prefect>=3.0
 sqlite3 (built-in)
 ```
 
 ---
 
-## 🧾 License
-This project is for educational purposes as part of a Data Structures & Algorithms course.
-
----
-
 ## 🙋‍♂️ Author
-**Herry Wei**
+
+**Herry Wei**  
 Graduate Student, Georgetown University
 
 ---
-
-## ✅ To Do
-- [ ] Add unit tests
-- [ ] Dockerize the pipeline (optional)
-- [ ] Add email/Slack notification integration with Prefect
-
