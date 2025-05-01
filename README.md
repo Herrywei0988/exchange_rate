@@ -23,6 +23,7 @@ exchange_rate/
 ├── pipeline.py         # Prefect pipeline definition
 ├── prefect.yaml        # Saved deployment configuration
 ├── requirements.txt    # Dependencies
+├── report.qmd          # The report page
 └── README.md           # Project overview and instructions
 ```
 
