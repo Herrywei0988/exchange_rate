@@ -3136,7 +3136,9 @@ vertical-align: -.125em;
 
 <section id="abstract" class="level2">
 <h2 class="anchored" data-anchor-id="abstract">Abstract</h2>
-<p>This project presents an automated ETL (Extract, Transform, Load) pipeline for foreign exchange rate data, built with Python and orchestrated using Prefect. The system extracts real-time exchange rate data from exchangerate.host, performs schema validation through Pydantic, applies transformations such as rate rounding and timestamp formatting, and stores the processed data in both CSV and SQLite formats. Furthermore, a web interface was developed to visualize the exchange rates and support real-time currency conversion. This work demonstrates how modern data validation frameworks and orchestration tools can be effectively combined to automate and monitor critical data workflows with reliability and clarity.</p>
+<p>This project presents an automated ETL (Extract, Transform, Load) pipeline for foreign exchange rate data, developed using Python and orchestrated with Prefect. The goal is to automate the retrieval, validation, transformation, and storage of real-time currency data in a scalable and maintainable way. The pipeline begins by fetching exchange rates from the exchangerate. host API, followed by schema validation using Pydantic to ensure data integrity and consistency. Validated data is then transformed through precision rounding and timestamp conversion, before being stored in both CSV and SQLite formats for flexibility in access and analysis.</p>
+<p>To provide user interaction and visualization, a web dashboard was created to support real-time currency conversion and dynamically display current rates. In addition, the entire workflow is orchestrated and monitored through Prefect Cloud, enabling hourly execution and offering a clear audit trail of task outcomes. The prefect’s UI also provides insight into flow performance and failure diagnostics.</p>
+<p>This project demonstrates how modern Python tooling, including data validation frameworks and workflow orchestration libraries, can be effectively combined to build robust, automated data systems. It highlights the practical challenges and solutions involved in designing pipelines that are both reproducible and production-ready.</p>
 <hr>
 </section>
 <section id="introduction" class="level2">
@@ -3188,7 +3190,7 @@ All tasks are orchestrated using a Prefect flow. The flow is configured for hour
 <h3 class="anchored" data-anchor-id="extract">3.1 Extract</h3>
 <p>The <code>extract.py</code> script handles data retrieval from the <a href="https://exchangerate.host">exchangerate.host</a> API. A <code>GET</code> request is sent with a specified base currency and a list of target currencies. The response is parsed into a structured <code>pandas</code> DataFrame.</p>
 <p>Example function:</p>
-<div id="cba0ddd7" class="cell" data-execution_count="1">
+<div id="652c1baa" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Show fetch_exchange_rates() example</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> fetch_exchange_rates(base_currency: <span class="bu">str</span>, target_currencies: <span class="bu">list</span>) <span class="op">-&gt;</span> pd.DataFrame:</span>
@@ -3208,7 +3210,7 @@ All tasks are orchestrated using a Prefect flow. The flow is configured for hour
 <h3 class="anchored" data-anchor-id="validate">3.2 Validate</h3>
 <p>To ensure data integrity, each exchange rate record is validated against a predefined schema using <strong>Pydantic</strong>. The validation checks that: - <code>base</code> and <code>target</code> are valid strings - <code>rate</code> is a positive float - <code>timestamp</code> is a valid integer</p>
 <p>Any record that fails the schema validation is skipped and logged.</p>
-<div id="e0085cda" class="cell" data-execution_count="2">
+<div id="ec60e300" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Pydantic schema for validation</summary>
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> ExchangeRateRecord(BaseModel):</span>
@@ -3223,7 +3225,7 @@ All tasks are orchestrated using a Prefect flow. The flow is configured for hour
 <section id="transform" class="level3">
 <h3 class="anchored" data-anchor-id="transform">3.3 Transform</h3>
 <p>In this step, the validated dataset is formatted for usability. The exchange rate values are rounded to 4 decimal places to ensure consistent precision. Additionally, UNIX timestamps are converted to human-readable date strings (<code>YYYY-MM-DD</code>) to simplify analysis and visualization.</p>
-<div id="e541c3e9" class="cell" data-execution_count="3">
+<div id="d91d8a49" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Transformation function</summary>
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> transform_data(df):</span>
@@ -3240,7 +3242,7 @@ All tasks are orchestrated using a Prefect flow. The flow is configured for hour
 <li>A <code>.csv</code> file, allowing for easy inspection and export</li>
 <li>A <code>SQLite</code> database table for structured queries and downstream integration</li>
 </ul>
-<div id="cae813c3" class="cell" data-execution_count="4">
+<div id="5e4e8e84" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>CSV and SQLite save functions</summary>
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> save_to_csv(df, filename<span class="op">=</span><span class="st">&quot;exchange_rates.csv&quot;</span>):</span>
@@ -3257,7 +3259,7 @@ All tasks are orchestrated using a Prefect flow. The flow is configured for hour
 <section id="orchestration" class="level3">
 <h3 class="anchored" data-anchor-id="orchestration">3.5 Orchestration</h3>
 <p>The full ETL workflow is orchestrated using <strong>Prefect</strong>. Each stage—extract, validate, transform, and load—is defined as a Prefect task and composed into a flow. The flow is then deployed with a cron schedule to Prefect Cloud for remote execution and monitoring.</p>
-<div id="bf66dfe7" class="cell" data-execution_count="5">
+<div id="4e3f5159" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Prefect flow definition</summary>
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="at">@flow</span>(name<span class="op">=</span><span class="st">&quot;Exchange Rate ETL Pipeline&quot;</span>)</span>
@@ -3283,7 +3285,7 @@ All tasks are orchestrated using a Prefect flow. The flow is configured for hour
 <h3 class="anchored" data-anchor-id="sample-output">4.1 Sample Output</h3>
 <p>After validation and transformation, the processed exchange rate data is saved to CSV formats:</p>
 <ul>
-<li><strong>CSV file</strong>: <code>exchange_rates.csv</code></li>
+<li><strong>CSV file</strong>: <code>open_exchange_rates.csv</code></li>
 </ul>
 <p>A sample of the cleaned data looks like:</p>
 <pre class="{text}"><code>base,target,rate,timestamp
